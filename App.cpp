@@ -3,7 +3,7 @@
 #include <windows.h>
 #define h 28
 #define w 115
-#define g 0.5f
+#define g 0.2f
 using namespace std;
 
 char buffer[h][w];
@@ -55,13 +55,19 @@ public:
 
 class projectile {
 public:
-	float x = 0, y = 0, vx = 0, vy = 0;
+	float x = 0, y = 0, vx = 0, vy = 0, gg=0.2f;
 	void set(float vel_x, float vel_y, player player) {
 		x = player.x + 2.0f + 1.0f; y = player.y - 1.0f - 2.0f;
 		vx = vel_x; vy = -vel_y;
+		vy = vy / vx;
+		gg = g / vx;
+		vx = 1;
 		if (player.id == 2) {
 			x = player.x - 3.0f; y = player.y - 1.0f - 2.0f;
-			vx = -vx;
+			vx = vx;
+			vy = vy / vx;
+			gg = gg / vx;
+			vx = -1;
 		}
 	}
 	int in_air() {
@@ -75,7 +81,7 @@ public:
 		}
 		x += vx;
 		y += vy;
-		vy += g;
+		vy += gg;
 	}
 };
 
@@ -83,38 +89,43 @@ player turn, opponent;
 void change_turn(player, player);
 
 int main() {
-	init_buffer();
-	player p1(0, h,1), p2(w, h, 2);
-	projectile bullet;
-	turn = p1;
-	opponent = p2;
-	//game loop
-	while (!game_over) {
-		display_scene();
-		cout << "Player-" << turn.id << "'s turn: ";
-		float vx, vy;
-		cin >> vx >> vy;
-		bullet.set(vx, vy, turn);
-		int result = 0;
-		while (bullet.in_air() && !result) {
-			bullet.travel();
-			display_scene();
-			Sleep(100);
-			result = opponent.hit(bullet.x, bullet.y);
-			if (result) {
-				bullet.travel();
-				game_over = 1;
-				display_scene();
-				cout << "Player-" << turn.id << " wins!";
-			}
-		}
-		cin.get(); cin.get();
-		change_turn(p1, p2);
+	char play = 'y';
+	while (play=='y') {
+		game_over = 0;
 		init_buffer();
-		p1.draw(0, h);
-		p2.draw(w, h);
+		player p1(0, h, 1), p2(w, h, 2);
+		projectile bullet;
+		turn = p1;
+		opponent = p2;
+		//game loop
+		while (!game_over) {
+			display_scene();
+			cout << "Player-" << turn.id << "'s turn: ";
+			float vx, vy;
+			cin >> vx >> vy;
+			bullet.set(vx, vy, turn);
+			int result = 0;
+			while (bullet.in_air() && !result) {
+				bullet.travel();
+				display_scene();
+				Sleep(100);
+				result = opponent.hit(bullet.x, bullet.y);
+				if (result) {
+					bullet.travel();
+					game_over = 1;
+					display_scene();
+					cout << "Player-" << turn.id << " wins!" << endl;
+				}
+			}
+			change_turn(p1, p2);
+			init_buffer();
+			p1.draw(0, h);
+			p2.draw(w, h);
+		}
+		play = 'n';
+		cout << "Play again (y/n): ";
+		cin >> play;
 	}
-
 	cin.get();
 	return 0;
 }
