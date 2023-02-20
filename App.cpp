@@ -1,6 +1,7 @@
 #include <iostream>
 #include <cmath>
 #include <windows.h>
+#include <ctime>
 #define h 28
 #define w 115
 #define g 0.2f
@@ -8,7 +9,6 @@ using namespace std;
 
 char buffer[h][w];
 int game_over = 0;
-
 
 void display_scene();
 void init_buffer();
@@ -60,14 +60,17 @@ public:
 		if (player.id == 1) {
 			x = player.x + 2.0f + 1.0f; y = player.y - 1.0f - 2.0f;
 			vx = vel_x; vy = -vel_y;
-			if (vx > vy) {
-
-			}
+			vy = vy / vx;
+			gg = g / vx;
+			vx = 3;
 		}
 		
 		if (player.id == 2) {
 			x = player.x - 3.0f; y = player.y - 1.0f - 2.0f;
-			vx = -vel_x; vy = -vel_y;
+			vx = vel_x; vy = -vel_y;
+			vy = vy / vx;
+			gg = g / vx;
+			vx = -3;
 		}
 	}
 	int in_air() {
@@ -77,10 +80,14 @@ public:
 	void travel() {
 		int xx = (int)round(x), yy = (int)round(y);
 		if (xx >= 0 && xx < w && yy >= 0 && yy < h) {
-			buffer[yy][xx] = '*';
+			buffer[yy][xx] = '.';
 		}
 		x += vx;
 		y += vy;
+		xx = (int)round(x), yy = (int)round(y);
+		if (xx >= 0 && xx < w && yy >= 0 && yy < h) {
+			buffer[yy][xx] = '*';
+		}
 		vy += gg;
 	}
 };
@@ -89,14 +96,23 @@ player turn, opponent;
 void change_turn(player, player);
 
 int main() {
+	srand(time(0));
 	char play = 'y';
 	while (play=='y') {
+		int r1, r2, t;
+		r1 = rand() % (w / 2);
 		game_over = 0;
 		init_buffer();
-		player p1(0, h, 1), p2(w, h, 2);
+		r2 = (w/2) + rand() % (w / 2);
+		player p1(r1, h, 1), p2(r2, h, 2);
 		projectile bullet;
-		turn = p2;
-		opponent = p1;
+		t = rand() % 3;
+		if (t == 0) {
+			turn = p1; opponent = p2;
+		}
+		else if (t == 1) {
+			turn = p2; opponent = p1;
+		}
 		//game loop
 		while (!game_over) {
 			display_scene();
@@ -119,14 +135,13 @@ int main() {
 			}
 			change_turn(p1, p2);
 			init_buffer();
-			p1.draw(0, h);
-			p2.draw(w, h);
+			p1.draw(r1, h);
+			p2.draw(r2, h);
 		}
 		play = 'n';
 		cout << "Play again (y/n): ";
 		cin >> play;
 	}
-	cin.get();
 	return 0;
 }
 
