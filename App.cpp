@@ -3,7 +3,7 @@
 #include <windows.h>
 #define h 28
 #define w 115
-#define g 0.2f
+#define g 0.5f
 using namespace std;
 
 char buffer[h][w];
@@ -96,7 +96,7 @@ int main() {
 		cin >> vx >> vy;
 		bullet.set(vx, vy, turn);
 		int result = 0;
-		do {
+		while (bullet.in_air() && !result) {
 			bullet.travel();
 			display_scene();
 			Sleep(100);
@@ -107,7 +107,7 @@ int main() {
 				display_scene();
 				cout << "Player-" << turn.id << " wins!";
 			}
-		} while (bullet.in_air() && !result);
+		}
 		cin.get(); cin.get();
 		change_turn(p1, p2);
 		init_buffer();
