@@ -57,17 +57,17 @@ class projectile {
 public:
 	float x = 0, y = 0, vx = 0, vy = 0, gg=0.2f;
 	void set(float vel_x, float vel_y, player player) {
-		x = player.x + 2.0f + 1.0f; y = player.y - 1.0f - 2.0f;
-		vx = vel_x; vy = -vel_y;
-		vy = vy / vx;
-		gg = g / vx;
-		vx = 1;
+		if (player.id == 1) {
+			x = player.x + 2.0f + 1.0f; y = player.y - 1.0f - 2.0f;
+			vx = vel_x; vy = -vel_y;
+			if (vx > vy) {
+
+			}
+		}
+		
 		if (player.id == 2) {
 			x = player.x - 3.0f; y = player.y - 1.0f - 2.0f;
-			vx = vx;
-			vy = vy / vx;
-			gg = gg / vx;
-			vx = -1;
+			vx = -vel_x; vy = -vel_y;
 		}
 	}
 	int in_air() {
@@ -95,8 +95,8 @@ int main() {
 		init_buffer();
 		player p1(0, h, 1), p2(w, h, 2);
 		projectile bullet;
-		turn = p1;
-		opponent = p2;
+		turn = p2;
+		opponent = p1;
 		//game loop
 		while (!game_over) {
 			display_scene();
